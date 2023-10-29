@@ -69,7 +69,7 @@ class Jargon {
 	}
 
 	public void printUsage() {
-		System.out.println("Usage : " + commandName + " <args> ");
+		System.out.println("Usage : " + commandName + " <args> ("+ prefix + "help for help)." );
 	}
 
 	public static void addSubCommand( String name, String help, JargonSubCommand callback ) {
@@ -82,7 +82,6 @@ class Jargon {
 public class Main{
 
 	public static void main(String[] args) {
-		System.out.println("It works!");
 		Jargon.initialize(args,"jargon-cli","--");
 		Jargon.addSubCommand("help","Prints help information",() -> System.out.println("Calling for help!"));
 		Jargon.processSubCommands();
