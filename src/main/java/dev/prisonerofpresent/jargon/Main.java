@@ -1,7 +1,6 @@
 package dev.prisonerofpresent.jargon;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 @FunctionalInterface
 interface JargonSubCommand {
@@ -10,8 +9,8 @@ interface JargonSubCommand {
 
 class JargonSubCommandInfo {
 	//TODO :  generate proper getters and setters
-	private final String name;
-	private final String helpString;
+	public final String name;
+	public final String helpString;
 	public final JargonSubCommand callback;
 
 	public JargonSubCommandInfo(String subCommandName, String help, JargonSubCommand handler ) {
@@ -23,7 +22,7 @@ class JargonSubCommandInfo {
 
 class Jargon {
 	private static Jargon INSTANCE = null;
-	String[] args = null;
+	List<String>  args = null;
 	String commandName = null;
 	Map<String,JargonSubCommandInfo> subCommandMap = null;
 	String prefix = null;
@@ -33,7 +32,7 @@ class Jargon {
 	public static void initialize(String[] commandLineArgs, String commandName,String prefix) {
 		INSTANCE = new Jargon();
 		INSTANCE.prefix = prefix;
-		INSTANCE.args = commandLineArgs;
+		INSTANCE.args = Arrays.asList(commandLineArgs);
 		INSTANCE.commandName = commandName;
 		INSTANCE.subCommandMap = new HashMap<>();
 	}
@@ -45,7 +44,7 @@ class Jargon {
 	public static void processSubCommands() {
 		// iterate the passed arguments.
 		// then make sure that the proper subcommand is executed
-		if ( INSTANCE.args == null || INSTANCE.args.length == 0  ) {
+		if ( INSTANCE.args == null || INSTANCE.args.size() == 0  ) {
 			INSTANCE.printUsage();
 		} else {
 			for ( String subcommand : INSTANCE.args ) {
@@ -59,17 +58,41 @@ class Jargon {
 				// callback should be a function with no arguments.
 				// We can define a functional interface, and make sure that interface is being used to define the method callbacks.
 				// so the use will be able to pass in anonymous functions ( lambdas )
+				// Also when the help subcommand is appended with any of the other subcommands, it should print the help of the subcommand.
+				// TODO : Add validation for the subcommands - if any of the subcommand is not valid, then do not process the entire thing.
 				if ( INSTANCE.subCommandMap.containsKey(subcommand) ){
-					INSTANCE.subCommandMap.get(subcommand).callback.process();
+					if ( INSTANCE.args.contains(INSTANCE.prefix + "help") ) {
+						System.out.println("Help for " + subcommand + "\t => \t " + INSTANCE.subCommandMap.get(subcommand).helpString);
+					} else {
+						INSTANCE.subCommandMap.get(subcommand).callback.process();
+					}
 				} else {
-					System.out.println("Unknown sub command " + subcommand);
+					if ( subcommand.equalsIgnoreCase(INSTANCE.prefix + "help") ) {
+						if ( INSTANCE.args.size() == 1 ) {
+							INSTANCE.printHelp();
+						}
+					} else {
+						System.out.println("Unknown sub command " + subcommand);
+					}
 				}
 		}
 		}
 	}
 
 	public void printUsage() {
-		System.out.println("Usage : " + commandName + " <args> ("+ prefix + "help for help)." );
+		System.out.println("\nUsage : " + commandName + " <args> ("+ prefix + "help for help).\n" );
+		printHelp();
+	}
+
+	public void printHelp() {
+		if ( !subCommandMap.isEmpty() ) {
+			System.out.println("\n--------------------Subcommands---------------------------\n");
+			subCommandMap.forEach((key,value ) -> {
+				System.out.println("\n " + key +  "\t\t => \t" + value.helpString);
+			} );
+		} else {
+			System.out.println("It's Unfortunate. No subcommands provided. Please ask the developer to be nice..");
+		}
 	}
 
 	public static void addSubCommand( String name, String help, JargonSubCommand callback ) {
@@ -83,7 +106,7 @@ public class Main{
 
 	public static void main(String[] args) {
 		Jargon.initialize(args,"jargon-cli","--");
-		Jargon.addSubCommand("help","Prints help information",() -> System.out.println("Calling for help!"));
+		Jargon.addSubCommand("build","Fake build command",() -> System.out.println("I just built a CLI tool from scratch!"));
 		Jargon.processSubCommands();
 	}
 }
