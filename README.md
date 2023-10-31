@@ -4,7 +4,7 @@ Simple command line arguments processor written in Java. Accepts args array from
 
 # Build and run : 
 
-Clone the repository\n
+Clone the repository  
 Execute the below : 
 
 ```console
