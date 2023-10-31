@@ -8,9 +8,9 @@ Clone the repository
 Execute the below : 
 
 ```console
-javac dev/prisonerofpresent/jargon/Main.java
+$: javac dev/prisonerofpresent/jargon/Main.java
 
-java dev.prisonerofpresent.jargon.Main
+$: java dev.prisonerofpresent.jargon.Main
 ```
 # IMPORTANT!!
 
